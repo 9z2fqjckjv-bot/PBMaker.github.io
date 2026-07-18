@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,7 +23,7 @@
       }
 
       main {
-        max-width: 1100px;
+        max-width: 1180px;
         margin: 0 auto;
         padding: 24px 16px 40px;
       }
@@ -42,7 +42,7 @@
       .layout {
         display: grid;
         gap: 20px;
-        grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+        grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
       }
 
       .panel,
@@ -57,6 +57,7 @@
         padding: 20px;
         display: grid;
         gap: 18px;
+        align-content: start;
       }
 
       .canvas-panel {
@@ -71,6 +72,13 @@
       .control-label {
         font-size: 0.95rem;
         font-weight: 700;
+      }
+
+      .control-row {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
       }
 
       .swatches {
@@ -93,7 +101,8 @@
       }
 
       .swatch:hover,
-      button:hover {
+      button:hover,
+      .template-card:hover {
         transform: translateY(-1px);
         box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
       }
@@ -104,17 +113,33 @@
         gap: 10px;
       }
 
-      button {
+      button,
+      select {
         background: #ffffff;
         color: #111827;
         font: inherit;
+      }
+
+      button {
         padding: 10px 16px;
+      }
+
+      select {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 10px 12px;
       }
 
       button.primary {
         background: #111827;
         border-color: #111827;
         color: #ffffff;
+      }
+
+      button.danger {
+        border-color: #fecaca;
+        color: #991b1b;
       }
 
       button[aria-pressed="true"] {
@@ -125,6 +150,61 @@
       input[type="color"],
       input[type="range"] {
         width: 100%;
+      }
+
+      .template-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        max-height: 300px;
+        overflow: auto;
+        padding: 2px;
+      }
+
+      .template-card {
+        display: grid;
+        gap: 6px;
+        padding: 6px;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 14px;
+        color: #111827;
+        cursor: pointer;
+        text-align: left;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+
+      .template-card img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 10px;
+        background: #f8fafc;
+      }
+
+      .template-card span {
+        min-height: 2.5em;
+        font-size: 0.78rem;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+      }
+
+      .asset-editor {
+        display: none;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #bfdbfe;
+        border-radius: 16px;
+        background: #eff6ff;
+      }
+
+      .asset-editor.active {
+        display: grid;
+      }
+
+      .asset-editor-title {
+        font-weight: 700;
+        overflow-wrap: anywhere;
       }
 
       .canvas-wrap {
@@ -160,7 +240,7 @@
         color: #4b5563;
       }
 
-      @media (max-width: 840px) {
+      @media (max-width: 920px) {
         .layout {
           grid-template-columns: 1fr;
         }
@@ -171,7 +251,7 @@
     <main>
       <section class="intro">
         <h1>PBMaker</h1>
-        <p>A GitHub Pages-friendly editor for building a Polandball illustration from a blank white ball with a black outline.</p>
+        <p>空白のポーランドボールに色を塗り、template フォルダ内の目・ボール・図形素材を追加して編集できます。</p>
       </section>
 
       <section class="layout">
@@ -192,7 +272,38 @@
             <div class="toolbar">
               <button id="paintTool" type="button" aria-pressed="true">Paint</button>
               <button id="eraseTool" type="button" aria-pressed="false">Erase to white</button>
-              <button id="eyesButton" type="button">Add eyes</button>
+              <button id="eyesButton" type="button">Choose eyes</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="templateCategory">Templates</label>
+            <select id="templateCategory">
+              <option value="eyes">Eyes</option>
+              <option value="balls">Balls</option>
+              <option value="shapes">Shapes</option>
+            </select>
+            <div class="template-grid" id="templateList" aria-label="Template list"></div>
+          </div>
+
+          <div class="asset-editor" id="assetEditor">
+            <div class="asset-editor-title" id="assetEditorTitle">No template selected</div>
+            <label>
+              Size <span id="assetScaleValue">100%</span>
+              <input id="assetScale" type="range" min="20" max="160" value="100" />
+            </label>
+            <label>
+              Rotation <span id="assetRotationValue">0°</span>
+              <input id="assetRotation" type="range" min="-180" max="180" value="0" />
+            </label>
+            <label>
+              Opacity <span id="assetOpacityValue">100%</span>
+              <input id="assetOpacity" type="range" min="10" max="100" value="100" />
+            </label>
+            <div class="toolbar">
+              <button id="sendBackButton" type="button">Back</button>
+              <button id="bringForwardButton" type="button">Forward</button>
+              <button id="deleteAssetButton" class="danger" type="button">Delete</button>
             </div>
           </div>
 
@@ -207,9 +318,9 @@
           <div class="control-group">
             <span class="control-label">How it works</span>
             <ul>
-              <li>It starts with a plain white ball and a bold black outline.</li>
-              <li>Painting is clipped to the inside of the ball, so strokes never spill out.</li>
-              <li>Use “Add eyes” to drop in a classic Polandball face instantly.</li>
+              <li>目は Templates の Eyes から選んで追加できます。</li>
+              <li>Balls と Shapes の画像も追加でき、ドラッグで移動できます。</li>
+              <li>選択中の素材はサイズ・回転・透明度・重なり順を編集できます。</li>
             </ul>
           </div>
         </aside>
@@ -218,7 +329,7 @@
           <div class="canvas-wrap">
             <canvas id="editorCanvas" width="800" height="800" aria-label="Polandball editor"></canvas>
           </div>
-          <p class="status" id="statusMessage">Your blank Polandball is ready. Pick a color and start painting.</p>
+          <p class="status" id="statusMessage">Your blank Polandball is ready. Pick a color, add templates, and start editing.</p>
         </section>
       </section>
     </main>
@@ -241,6 +352,19 @@
       const downloadButton = document.getElementById("downloadButton");
       const swatches = document.getElementById("swatches");
       const statusMessage = document.getElementById("statusMessage");
+      const templateCategory = document.getElementById("templateCategory");
+      const templateList = document.getElementById("templateList");
+      const assetEditor = document.getElementById("assetEditor");
+      const assetEditorTitle = document.getElementById("assetEditorTitle");
+      const assetScale = document.getElementById("assetScale");
+      const assetScaleValue = document.getElementById("assetScaleValue");
+      const assetRotation = document.getElementById("assetRotation");
+      const assetRotationValue = document.getElementById("assetRotationValue");
+      const assetOpacity = document.getElementById("assetOpacity");
+      const assetOpacityValue = document.getElementById("assetOpacityValue");
+      const sendBackButton = document.getElementById("sendBackButton");
+      const bringForwardButton = document.getElementById("bringForwardButton");
+      const deleteAssetButton = document.getElementById("deleteAssetButton");
 
       const palette = ["#ffffff", "#d90429", "#003049", "#f77f00", "#2a9d8f", "#ffdd00", "#000000", "#7c3aed", "#0f766e", "#9a3412"];
       const ball = {
@@ -248,13 +372,66 @@
         centerY: canvas.height / 2,
         radius: 300,
       };
-
+      const templateAssetSize = ball.radius * 2;
+      const imageCache = new Map();
+      const templateAssets = [];
+      let templateAssetId = 0;
+      let selectedAssetId = null;
       let pointerActive = false;
+      let activeDragAssetId = null;
+      let dragOffset = { x: 0, y: 0 };
       let currentTool = "paint";
       let currentPoint = null;
 
+      const templateManifest = {
+        eyes: [
+          { name: "余裕", src: "template/eyes/余裕.jpg" },
+          { name: "半開き笑い目", src: "template/eyes/半開き笑い目.jpg" },
+          { name: "半開き通常", src: "template/eyes/半開き通常.jpg" },
+          { name: "通常", src: "template/eyes/通常.jpg" },
+          { name: "目閉じ", src: "template/eyes/目閉じ.jpg" },
+          { name: "笑い目", src: "template/eyes/笑い目.jpg" },
+        ],
+        balls: [
+          { name: "Normal / Japan / 通常", src: "template/balls/Normal/Japan/通常.jpg" },
+          { name: "Normal / Japan / 目閉じ笑い目", src: "template/balls/Normal/Japan/目閉じ笑い目.jpg" },
+          { name: "Normal / Japan / 半目通常", src: "template/balls/Normal/Japan/半目通常.jpg" },
+          { name: "Normal / Japan / 目閉じ", src: "template/balls/Normal/Japan/目閉じ.jpg" },
+          { name: "Normal / Japan / 笑い目", src: "template/balls/Normal/Japan/笑い目.jpg" },
+          { name: "Normal / Japan / 半目笑い目", src: "template/balls/Normal/Japan/半目笑い目.jpg" },
+          { name: "WWII Version / Japan / 半開き笑い目", src: "template/balls/WWⅡVersion/Japan/半開き笑い目.jpg" },
+          { name: "WWII Version / Japan / 半開き通常", src: "template/balls/WWⅡVersion/Japan/半開き通常.jpg" },
+          { name: "WWII Version / Japan / 通常", src: "template/balls/WWⅡVersion/Japan/通常.jpg" },
+          { name: "WWII Version / Japan / 目閉じ笑い目", src: "template/balls/WWⅡVersion/Japan/目閉じ笑い目.jpg" },
+          { name: "WWII Version / Japan / 目閉じ", src: "template/balls/WWⅡVersion/Japan/目閉じ.jpg" },
+          { name: "WWII Version / Japan / 笑い目", src: "template/balls/WWⅡVersion/Japan/笑い目.jpg" },
+        ],
+        shapes: [
+          { name: "月", src: "template/shapes/月.jpg" },
+          { name: "日の丸", src: "template/shapes/日の丸.jpg" },
+          { name: "帽子 / グラデーション / 赤", src: "template/shapes/帽子/グラデーション/赤.jpg" },
+          { name: "帽子 / グラデーション / 淡い青紫", src: "template/shapes/帽子/グラデーション/淡い青紫.jpg" },
+          { name: "帽子 / グラデーション / スカイブルー", src: "template/shapes/帽子/グラデーション/スカイブルー.jpg" },
+          { name: "帽子 / グラデーション / ピンクオレンジ", src: "template/shapes/帽子/グラデーション/ピンクオレンジ.jpg" },
+          { name: "帽子 / グラデーション / 青緑", src: "template/shapes/帽子/グラデーション/青緑.jpg" },
+          { name: "帽子 / グラデーション / 青紫", src: "template/shapes/帽子/グラデーション/青紫.jpg" },
+          { name: "帽子 / グラデーション / 明るい赤", src: "template/shapes/帽子/グラデーション/明るい赤.jpg" },
+          { name: "帽子 / グラデーション / オレンジ", src: "template/shapes/帽子/グラデーション/オレンジ.jpg" },
+          { name: "帽子 / グラデーション / グレー", src: "template/shapes/帽子/グラデーション/グレー.jpg" },
+          { name: "帽子 / グラデーション / イエローオレンジ", src: "template/shapes/帽子/グラデーション/イエローオレンジ.jpg" },
+          { name: "帽子 / グラデーション / 赤紫", src: "template/shapes/帽子/グラデーション/赤紫.jpg" },
+          { name: "帽子 / グラデーション / 黄緑", src: "template/shapes/帽子/グラデーション/黄緑.jpg" },
+          { name: "帽子 / グラデーション / ブルー", src: "template/shapes/帽子/グラデーション/ブルー.jpg" },
+          { name: "帽子 / グラデーション / グリーン", src: "template/shapes/帽子/グラデーション/グリーン.jpg" },
+        ],
+      };
+
       function setStatus(message) {
         statusMessage.textContent = message;
+      }
+
+      function getSelectedAsset() {
+        return templateAssets.find((asset) => asset.id === selectedAssetId) || null;
       }
 
       function drawBaseBall() {
@@ -270,17 +447,78 @@
         context.drawImage(drawingLayer, 0, 0);
         context.restore();
 
+        templateAssets.forEach(drawTemplateAsset);
+
         context.beginPath();
         context.arc(ball.centerX, ball.centerY, ball.radius, 0, Math.PI * 2);
         context.lineWidth = 10;
         context.strokeStyle = "#000000";
         context.stroke();
+
+        drawSelectedAssetOutline();
+      }
+
+      function drawTemplateAsset(asset) {
+        if (!asset.image) {
+          return;
+        }
+
+        const size = asset.baseSize * asset.scale;
+        context.save();
+        if (asset.category === "balls") {
+          context.beginPath();
+          context.arc(ball.centerX, ball.centerY, ball.radius, 0, Math.PI * 2);
+          context.clip();
+        }
+        context.translate(asset.x, asset.y);
+        context.rotate(asset.rotation);
+        context.globalAlpha = asset.opacity;
+        context.drawImage(asset.image, -size / 2, -size / 2, size, size);
+        context.restore();
+      }
+
+      function drawSelectedAssetOutline() {
+        const asset = getSelectedAsset();
+        if (!asset) {
+          return;
+        }
+
+        const size = asset.baseSize * asset.scale;
+        context.save();
+        context.translate(asset.x, asset.y);
+        context.rotate(asset.rotation);
+        context.setLineDash([10, 8]);
+        context.lineWidth = 3;
+        context.strokeStyle = "#2563eb";
+        context.strokeRect(-size / 2, -size / 2, size, size);
+        context.restore();
       }
 
       function pointInsideBall(point) {
         const dx = point.x - ball.centerX;
         const dy = point.y - ball.centerY;
         return Math.sqrt(dx * dx + dy * dy) <= ball.radius;
+      }
+
+      function pointInsideAsset(point, asset) {
+        const size = asset.baseSize * asset.scale;
+        const dx = point.x - asset.x;
+        const dy = point.y - asset.y;
+        const cos = Math.cos(-asset.rotation);
+        const sin = Math.sin(-asset.rotation);
+        const localX = dx * cos - dy * sin;
+        const localY = dx * sin + dy * cos;
+        return Math.abs(localX) <= size / 2 && Math.abs(localY) <= size / 2;
+      }
+
+      function findAssetAtPoint(point) {
+        for (let index = templateAssets.length - 1; index >= 0; index -= 1) {
+          if (pointInsideAsset(point, templateAssets[index])) {
+            return templateAssets[index];
+          }
+        }
+
+        return null;
       }
 
       function getPointerPoint(event) {
@@ -311,35 +549,138 @@
         drawBaseBall();
       }
 
-      function placeEyes() {
-        const eyeRadius = 46;
-        const irisRadius = 10;
-        const positions = [
-          { x: ball.centerX - 60, y: ball.centerY - 32 },
-          { x: ball.centerX + 28, y: ball.centerY - 12 },
-        ];
+      function normalizeTemplateImage(image) {
+        const preparedImage = document.createElement("canvas");
+        preparedImage.width = image.naturalWidth;
+        preparedImage.height = image.naturalHeight;
+        const preparedContext = preparedImage.getContext("2d");
+        preparedContext.drawImage(image, 0, 0);
+        const imageData = preparedContext.getImageData(0, 0, preparedImage.width, preparedImage.height);
+        const pixels = imageData.data;
 
-        positions.forEach((position, index) => {
-          drawingContext.beginPath();
-          drawingContext.arc(position.x, position.y, eyeRadius, 0, Math.PI * 2);
-          drawingContext.fillStyle = "#ffffff";
-          drawingContext.fill();
-          drawingContext.lineWidth = 8;
-          drawingContext.strokeStyle = "#000000";
-          drawingContext.stroke();
+        for (let index = 0; index < pixels.length; index += 4) {
+          const red = pixels[index];
+          const green = pixels[index + 1];
+          const blue = pixels[index + 2];
+          if (red > 246 && green > 246 && blue > 246) {
+            pixels[index + 3] = 0;
+          }
+        }
 
-          drawingContext.beginPath();
-          drawingContext.arc(position.x + (index === 0 ? 18 : 12), position.y + 6, irisRadius, 0, Math.PI * 2);
-          drawingContext.fillStyle = "#000000";
-          drawingContext.fill();
+        preparedContext.putImageData(imageData, 0, 0);
+        return preparedImage;
+      }
+
+      function loadTemplateImage(src, preserveWhite) {
+        const cacheKey = `${src}:${preserveWhite ? "original" : "transparent"}`;
+        if (imageCache.has(cacheKey)) {
+          return imageCache.get(cacheKey);
+        }
+
+        const imagePromise = new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(preserveWhite ? image : normalizeTemplateImage(image));
+          image.onerror = () => reject(new Error(`Could not load ${src}`));
+          image.src = encodeURI(src);
         });
 
+        imageCache.set(cacheKey, imagePromise);
+        return imagePromise;
+      }
+
+      async function addTemplateAsset(template, category) {
+        const asset = {
+          id: `template-${templateAssetId}`,
+          name: template.name,
+          src: template.src,
+          category,
+          x: ball.centerX,
+          y: ball.centerY,
+          baseSize: templateAssetSize,
+          scale: 1,
+          rotation: 0,
+          opacity: 1,
+          image: null,
+        };
+        templateAssetId += 1;
+        templateAssets.push(asset);
+        selectAsset(asset.id);
+        setStatus(`${template.name} を読み込んでいます...`);
+
+        try {
+          asset.image = await loadTemplateImage(template.src, category === "balls");
+          drawBaseBall();
+          setStatus(`${template.name} を追加しました。キャンバス上でドラッグして移動できます。`);
+        } catch (error) {
+          const assetIndex = templateAssets.findIndex((item) => item.id === asset.id);
+          if (assetIndex >= 0) {
+            templateAssets.splice(assetIndex, 1);
+          }
+          selectAsset(null);
+          setStatus(`${template.name} を読み込めませんでした。`);
+        }
+      }
+
+      function selectAsset(assetId) {
+        selectedAssetId = assetId;
+        updateAssetEditor();
         drawBaseBall();
-        setStatus("Eyes added. Keep painting to finish the character.");
+      }
+
+      function updateAssetEditor() {
+        const asset = getSelectedAsset();
+        assetEditor.classList.toggle("active", Boolean(asset));
+
+        if (!asset) {
+          assetEditorTitle.textContent = "No template selected";
+          return;
+        }
+
+        const scale = Math.round(asset.scale * 100);
+        const rotation = Math.round((asset.rotation * 180) / Math.PI);
+        const opacity = Math.round(asset.opacity * 100);
+        assetEditorTitle.textContent = asset.name;
+        assetScale.value = String(scale);
+        assetScaleValue.textContent = `${scale}%`;
+        assetRotation.value = String(rotation);
+        assetRotationValue.textContent = `${rotation}°`;
+        assetOpacity.value = String(opacity);
+        assetOpacityValue.textContent = `${opacity}%`;
+      }
+
+      function moveSelectedAsset(direction) {
+        const asset = getSelectedAsset();
+        if (!asset) {
+          return;
+        }
+
+        const index = templateAssets.findIndex((item) => item.id === asset.id);
+        const nextIndex = direction === "forward" ? index + 1 : index - 1;
+        if (nextIndex < 0 || nextIndex >= templateAssets.length) {
+          return;
+        }
+
+        templateAssets.splice(index, 1);
+        templateAssets.splice(nextIndex, 0, asset);
+        drawBaseBall();
+      }
+
+      function deleteSelectedAsset() {
+        const asset = getSelectedAsset();
+        if (!asset) {
+          return;
+        }
+
+        const index = templateAssets.findIndex((item) => item.id === asset.id);
+        templateAssets.splice(index, 1);
+        selectAsset(null);
+        setStatus(`${asset.name} を削除しました。`);
       }
 
       function resetCanvas() {
         drawingContext.clearRect(0, 0, drawingLayer.width, drawingLayer.height);
+        templateAssets.length = 0;
+        selectAsset(null);
         drawBaseBall();
         setStatus("Reset to the blank white Polandball.");
       }
@@ -352,15 +693,34 @@
       }
 
       function downloadImage() {
+        const previousSelection = selectedAssetId;
+        selectedAssetId = null;
+        drawBaseBall();
+
         const link = document.createElement("a");
         link.href = canvas.toDataURL("image/png");
         link.download = "polandball.png";
         link.click();
+
+        selectedAssetId = previousSelection;
+        drawBaseBall();
         setStatus("PNG export started.");
       }
 
       function startDrawing(event) {
         const point = getPointerPoint(event);
+        const asset = findAssetAtPoint(point);
+
+        if (asset) {
+          pointerActive = true;
+          activeDragAssetId = asset.id;
+          dragOffset = { x: point.x - asset.x, y: point.y - asset.y };
+          selectAsset(asset.id);
+          setStatus(`${asset.name} を移動中です。`);
+          return;
+        }
+
+        selectAsset(null);
         if (!pointInsideBall(point)) {
           return;
         }
@@ -372,18 +732,52 @@
       }
 
       function continueDrawing(event) {
-        if (!pointerActive || !currentPoint) {
+        if (!pointerActive) {
           return;
         }
 
         const nextPoint = getPointerPoint(event);
+        if (activeDragAssetId) {
+          const asset = templateAssets.find((item) => item.id === activeDragAssetId);
+          if (asset) {
+            asset.x = nextPoint.x - dragOffset.x;
+            asset.y = nextPoint.y - dragOffset.y;
+            drawBaseBall();
+          }
+          return;
+        }
+
+        if (!currentPoint) {
+          return;
+        }
+
         drawStroke(currentPoint, nextPoint);
         currentPoint = nextPoint;
       }
 
       function stopDrawing() {
         pointerActive = false;
+        activeDragAssetId = null;
         currentPoint = null;
+      }
+
+      function renderTemplateList() {
+        const category = templateCategory.value;
+        templateList.replaceChildren();
+
+        templateManifest[category].forEach((template) => {
+          const card = document.createElement("button");
+          const thumbnail = document.createElement("img");
+          const label = document.createElement("span");
+          card.type = "button";
+          card.className = "template-card";
+          thumbnail.src = encodeURI(template.src);
+          thumbnail.alt = template.name;
+          label.textContent = template.name;
+          card.append(thumbnail, label);
+          card.addEventListener("click", () => addTemplateAsset(template, category));
+          templateList.appendChild(card);
+        });
       }
 
       palette.forEach((color) => {
@@ -407,6 +801,39 @@
         brushSizeValue.textContent = `${brushSize.value}px`;
       });
 
+      assetScale.addEventListener("input", () => {
+        const asset = getSelectedAsset();
+        if (!asset) {
+          return;
+        }
+
+        asset.scale = Number(assetScale.value) / 100;
+        assetScaleValue.textContent = `${assetScale.value}%`;
+        drawBaseBall();
+      });
+
+      assetRotation.addEventListener("input", () => {
+        const asset = getSelectedAsset();
+        if (!asset) {
+          return;
+        }
+
+        asset.rotation = (Number(assetRotation.value) * Math.PI) / 180;
+        assetRotationValue.textContent = `${assetRotation.value}°`;
+        drawBaseBall();
+      });
+
+      assetOpacity.addEventListener("input", () => {
+        const asset = getSelectedAsset();
+        if (!asset) {
+          return;
+        }
+
+        asset.opacity = Number(assetOpacity.value) / 100;
+        assetOpacityValue.textContent = `${assetOpacity.value}%`;
+        drawBaseBall();
+      });
+
       canvas.addEventListener("pointerdown", startDrawing);
       canvas.addEventListener("pointermove", continueDrawing);
       canvas.addEventListener("pointerup", stopDrawing);
@@ -415,10 +842,19 @@
 
       paintTool.addEventListener("click", () => setTool("paint"));
       eraseTool.addEventListener("click", () => setTool("erase"));
-      eyesButton.addEventListener("click", placeEyes);
+      eyesButton.addEventListener("click", () => {
+        templateCategory.value = "eyes";
+        renderTemplateList();
+        setStatus("Eyes から追加したい目のテンプレートを選んでください。");
+      });
+      templateCategory.addEventListener("change", renderTemplateList);
+      sendBackButton.addEventListener("click", () => moveSelectedAsset("back"));
+      bringForwardButton.addEventListener("click", () => moveSelectedAsset("forward"));
+      deleteAssetButton.addEventListener("click", deleteSelectedAsset);
       resetButton.addEventListener("click", resetCanvas);
       downloadButton.addEventListener("click", downloadImage);
 
+      renderTemplateList();
       drawBaseBall();
     </script>
   </body>
