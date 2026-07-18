@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBMaker</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f3f4f6;
+        color: #111827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(180deg, #f9fafb 0%, #e5e7eb 100%);
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+
+      h1,
+      p {
+        margin: 0;
+      }
+
+      .intro {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .layout {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      }
+
+      .panel,
+      .canvas-panel {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid #d1d5db;
+        border-radius: 20px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      }
+
+      .panel {
+        padding: 20px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .canvas-panel {
+        padding: 20px;
+      }
+
+      .control-group {
+        display: grid;
+        gap: 10px;
+      }
+
+      .control-label {
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .swatch,
+      button {
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+
+      .swatch {
+        width: 100%;
+        aspect-ratio: 1;
+      }
+
+      .swatch:hover,
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button {
+        background: #ffffff;
+        color: #111827;
+        font: inherit;
+        padding: 10px 16px;
+      }
+
+      button.primary {
+        background: #111827;
+        border-color: #111827;
+        color: #ffffff;
+      }
+
+      button[aria-pressed="true"] {
+        background: #dbeafe;
+        border-color: #60a5fa;
+      }
+
+      input[type="color"],
+      input[type="range"] {
+        width: 100%;
+      }
+
+      .canvas-wrap {
+        position: relative;
+        width: min(100%, 700px);
+        margin: 0 auto;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: auto;
+        background:
+          linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+          linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+          linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+        background-size: 28px 28px;
+        background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+        border-radius: 24px;
+        touch-action: none;
+      }
+
+      .status {
+        margin-top: 14px;
+        color: #374151;
+        font-size: 0.95rem;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 1.2rem;
+        color: #4b5563;
+      }
+
+      @media (max-width: 840px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="intro">
+        <h1>PBMaker</h1>
+        <p>A GitHub Pages-friendly editor for building a Polandball illustration from a blank white ball with a black outline.</p>
+      </section>
+
+      <section class="layout">
+        <aside class="panel">
+          <div class="control-group">
+            <label class="control-label" for="colorPicker">Color</label>
+            <input id="colorPicker" type="color" value="#ff0000" />
+            <div class="swatches" id="swatches"></div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="brushSize">Brush size <span id="brushSizeValue">18px</span></label>
+            <input id="brushSize" type="range" min="4" max="64" value="18" />
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">Tools</span>
+            <div class="toolbar">
+              <button id="paintTool" type="button" aria-pressed="true">Paint</button>
+              <button id="eraseTool" type="button" aria-pressed="false">Erase to white</button>
+              <button id="eyesButton" type="button">Add eyes</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">Actions</span>
+            <div class="toolbar">
+              <button id="resetButton" type="button">Reset</button>
+              <button id="downloadButton" class="primary" type="button">Save PNG</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">How it works</span>
+            <ul>
+              <li>It starts with a plain white ball and a bold black outline.</li>
+              <li>Painting is clipped to the inside of the ball, so strokes never spill out.</li>
+              <li>Use “Add eyes” to drop in a classic Polandball face instantly.</li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="canvas-panel">
+          <div class="canvas-wrap">
+            <canvas id="editorCanvas" width="800" height="800" aria-label="Polandball editor"></canvas>
+          </div>
+          <p class="status" id="statusMessage">Your blank Polandball is ready. Pick a color and start painting.</p>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const canvas = document.getElementById("editorCanvas");
+      const context = canvas.getContext("2d");
+      const drawingLayer = document.createElement("canvas");
+      drawingLayer.width = canvas.width;
+      drawingLayer.height = canvas.height;
+      const drawingContext = drawingLayer.getContext("2d");
+
+      const colorPicker = document.getElementById("colorPicker");
+      const brushSize = document.getElementById("brushSize");
+      const brushSizeValue = document.getElementById("brushSizeValue");
+      const paintTool = document.getElementById("paintTool");
+      const eraseTool = document.getElementById("eraseTool");
+      const eyesButton = document.getElementById("eyesButton");
+      const resetButton = document.getElementById("resetButton");
+      const downloadButton = document.getElementById("downloadButton");
+      const swatches = document.getElementById("swatches");
+      const statusMessage = document.getElementById("statusMessage");
+
+      const palette = ["#ffffff", "#d90429", "#003049", "#f77f00", "#2a9d8f", "#ffdd00", "#000000", "#7c3aed", "#0f766e", "#9a3412"];
+      const ball = {
+        centerX: canvas.width / 2,
+        centerY: canvas.height / 2,
+        radius: 300,
+      };
+
+      let pointerActive = false;
+      let currentTool = "paint";
+      let currentPoint = null;
+
+      function setStatus(message) {
+        statusMessage.textContent = message;
+      }
+
+      function drawBaseBall() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        context.save();
+        context.beginPath();
+        context.arc(ball.centerX, ball.centerY, ball.radius, 0, Math.PI * 2);
+        context.closePath();
+        context.fillStyle = "#ffffff";
+        context.fill();
+        context.clip();
+        context.drawImage(drawingLayer, 0, 0);
+        context.restore();
+
+        context.beginPath();
+        context.arc(ball.centerX, ball.centerY, ball.radius, 0, Math.PI * 2);
+        context.lineWidth = 10;
+        context.strokeStyle = "#000000";
+        context.stroke();
+      }
+
+      function pointInsideBall(point) {
+        const dx = point.x - ball.centerX;
+        const dy = point.y - ball.centerY;
+        return Math.sqrt(dx * dx + dy * dy) <= ball.radius;
+      }
+
+      function getPointerPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        return {
+          x: (event.clientX - rect.left) * scaleX,
+          y: (event.clientY - rect.top) * scaleY,
+        };
+      }
+
+      function drawStroke(fromPoint, toPoint) {
+        drawingContext.save();
+        drawingContext.beginPath();
+        drawingContext.arc(ball.centerX, ball.centerY, ball.radius, 0, Math.PI * 2);
+        drawingContext.clip();
+        drawingContext.lineCap = "round";
+        drawingContext.lineJoin = "round";
+        drawingContext.lineWidth = Number(brushSize.value);
+        drawingContext.strokeStyle = currentTool === "erase" ? "#ffffff" : colorPicker.value;
+        drawingContext.beginPath();
+        drawingContext.moveTo(fromPoint.x, fromPoint.y);
+        drawingContext.lineTo(toPoint.x, toPoint.y);
+        drawingContext.stroke();
+        drawingContext.restore();
+        drawBaseBall();
+      }
+
+      function placeEyes() {
+        const eyeRadius = 46;
+        const irisRadius = 10;
+        const positions = [
+          { x: ball.centerX - 60, y: ball.centerY - 32 },
+          { x: ball.centerX + 28, y: ball.centerY - 12 },
+        ];
+
+        positions.forEach((position, index) => {
+          drawingContext.beginPath();
+          drawingContext.arc(position.x, position.y, eyeRadius, 0, Math.PI * 2);
+          drawingContext.fillStyle = "#ffffff";
+          drawingContext.fill();
+          drawingContext.lineWidth = 8;
+          drawingContext.strokeStyle = "#000000";
+          drawingContext.stroke();
+
+          drawingContext.beginPath();
+          drawingContext.arc(position.x + (index === 0 ? 18 : 12), position.y + 6, irisRadius, 0, Math.PI * 2);
+          drawingContext.fillStyle = "#000000";
+          drawingContext.fill();
+        });
+
+        drawBaseBall();
+        setStatus("Eyes added. Keep painting to finish the character.");
+      }
+
+      function resetCanvas() {
+        drawingContext.clearRect(0, 0, drawingLayer.width, drawingLayer.height);
+        drawBaseBall();
+        setStatus("Reset to the blank white Polandball.");
+      }
+
+      function setTool(tool) {
+        currentTool = tool;
+        paintTool.setAttribute("aria-pressed", String(tool === "paint"));
+        eraseTool.setAttribute("aria-pressed", String(tool === "erase"));
+        setStatus(tool === "paint" ? "Paint mode enabled." : "Erase-to-white mode enabled.");
+      }
+
+      function downloadImage() {
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = "polandball.png";
+        link.click();
+        setStatus("PNG export started.");
+      }
+
+      function startDrawing(event) {
+        const point = getPointerPoint(event);
+        if (!pointInsideBall(point)) {
+          return;
+        }
+
+        pointerActive = true;
+        currentPoint = point;
+        drawStroke(point, point);
+        setStatus("Painting...");
+      }
+
+      function continueDrawing(event) {
+        if (!pointerActive || !currentPoint) {
+          return;
+        }
+
+        const nextPoint = getPointerPoint(event);
+        drawStroke(currentPoint, nextPoint);
+        currentPoint = nextPoint;
+      }
+
+      function stopDrawing() {
+        pointerActive = false;
+        currentPoint = null;
+      }
+
+      palette.forEach((color) => {
+        const swatch = document.createElement("button");
+        swatch.type = "button";
+        swatch.className = "swatch";
+        swatch.style.background = color;
+        swatch.setAttribute("aria-label", `Color ${color}`);
+        swatch.addEventListener("click", () => {
+          colorPicker.value = color;
+          if (color === "#ffffff") {
+            setStatus("White selected for cleanup and highlights.");
+          } else {
+            setStatus(`Selected ${color}.`);
+          }
+        });
+        swatches.appendChild(swatch);
+      });
+
+      brushSize.addEventListener("input", () => {
+        brushSizeValue.textContent = `${brushSize.value}px`;
+      });
+
+      canvas.addEventListener("pointerdown", startDrawing);
+      canvas.addEventListener("pointermove", continueDrawing);
+      canvas.addEventListener("pointerup", stopDrawing);
+      canvas.addEventListener("pointerleave", stopDrawing);
+      canvas.addEventListener("pointercancel", stopDrawing);
+
+      paintTool.addEventListener("click", () => setTool("paint"));
+      eraseTool.addEventListener("click", () => setTool("erase"));
+      eyesButton.addEventListener("click", placeEyes);
+      resetButton.addEventListener("click", resetCanvas);
+      downloadButton.addEventListener("click", downloadImage);
+
+      drawBaseBall();
+    </script>
+  </body>
+</html>
